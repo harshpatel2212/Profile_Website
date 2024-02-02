@@ -1,0 +1,29 @@
+name: SonarQube Scan
+on:
+  push:
+    branches:
+      - main
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install SonarQube
+        run: |
+          docker run -d --name sonarqube -p 9000:9000 sonarqube:8.6.0-community
+      - name: Install Sonar Scanner
+        run: |
+          npm install sonarqube-scanner -g
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
